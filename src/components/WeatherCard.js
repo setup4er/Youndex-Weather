@@ -13,7 +13,11 @@ const WeatherCard = ({ weatherData, isFavorite = false, onFavoritePress, showFav
 
   if (!weatherData) return null;
 
-  const { location, current } = weatherData;
+  const { location, current, forecast } = weatherData;
+
+  // Получаем данные о восходе и закате из forecast
+  const sunrise = forecast?.forecastday?.[0]?.astro?.sunrise;
+  const sunset = forecast?.forecastday?.[0]?.astro?.sunset;
 
   const weatherDetails = [
     { icon: '💨', label: 'Влажность', value: `${current.humidity}%` },
@@ -83,14 +87,21 @@ const WeatherCard = ({ weatherData, isFavorite = false, onFavoritePress, showFav
         ))}
       </View>
 
-      <View style={weatherStyles.additionalInfo}>
-        <Text style={weatherStyles.additionalText}>
-          Восход: {formatTime(current.sunrise)}
-        </Text>
-        <Text style={weatherStyles.additionalText}>
-          Закат: {formatTime(current.sunset)}
-        </Text>
-      </View>
+      {/* Блок с восходом и закатом - показываем только если данные доступны */}
+      {(sunrise || sunset) && (
+        <View style={weatherStyles.additionalInfo}>
+          {sunrise && (
+            <Text style={weatherStyles.additionalText}>
+              Восход: {formatTime(sunrise)}
+            </Text>
+          )}
+          {sunset && (
+            <Text style={weatherStyles.additionalText}>
+              Закат: {formatTime(sunset)}
+            </Text>
+          )}
+        </View>
+      )}
     </View>
   );
 };

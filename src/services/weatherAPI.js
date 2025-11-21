@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API_KEY = '1961bb74564d412286f53506240109';
-const BASE_URL = 'https://api.weatherapi.com/v1/current.json';
+const BASE_URL = 'https://api.weatherapi.com/v1';
 
 // Кэш для запросов
 const cache = new Map();
@@ -10,7 +10,7 @@ const CACHE_DURATION = 10 * 60 * 1000; // 10 минут
 export const fetchWeatherData = async (query) => {
   try {
     const encodedQuery = encodeURIComponent(query.trim());
-    const cacheKey = encodedQuery.toLowerCase();
+    const cacheKey = `current_${encodedQuery.toLowerCase()}`;
     
     const cached = cache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
@@ -20,18 +20,26 @@ export const fetchWeatherData = async (query) => {
 
     console.log('Запрос погоды для:', query);
     
+    // Используем forecast endpoint чтобы получить данные о восходе и закате
     const response = await axios.get(
-      `${BASE_URL}?key=${API_KEY}&q=${encodedQuery}&aqi=no`,
+      `${BASE_URL}/forecast.json?key=${API_KEY}&q=${encodedQuery}&days=1&aqi=no&alerts=no`,
       { timeout: 10000 }
     );
     
+    // Форматируем данные для совместимости с текущей структурой
+    const formattedData = {
+      location: response.data.location,
+      current: response.data.current,
+      forecast: response.data.forecast
+    };
+    
     // Сохраняем в кэш
     cache.set(cacheKey, {
-      data: response.data,
+      data: formattedData,
       timestamp: Date.now()
     });
     
-    return response.data;
+    return formattedData;
   } catch (error) {
     console.error('Ошибка API:', error.response?.data || error.message);
     

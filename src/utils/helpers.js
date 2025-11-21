@@ -1,11 +1,53 @@
 // Форматирование времени
 export const formatTime = (dateString) => {
   if (!dateString) return '--:--';
-  const date = new Date(dateString);
-  return date.toLocaleTimeString('ru-RU', {
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  
+  try {
+    // Пытаемся распарсить как ISO строку
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      // Если это не ISO строка (например, "06:45 AM"), конвертируем в 24-часовой формат
+      return convertTo24HourFormat(dateString);
+    }
+    return date.toLocaleTimeString('ru-RU', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false // 24-часовой формат
+    });
+  } catch (error) {
+    console.error('Ошибка форматирования времени:', error);
+    return dateString; // Возвращаем исходное значение в случае ошибки
+  }
+};
+
+// Конвертация времени из 12-часового формата (AM/PM) в 24-часовой
+export const convertTo24HourFormat = (time12h) => {
+  if (!time12h) return '--:--';
+  
+  try {
+    // Разбиваем строку на время и AM/PM
+    const [time, period] = time12h.split(' ');
+    if (!time || !period) return time12h;
+    
+    // Разбиваем время на часы и минуты
+    const [hours, minutes] = time.split(':');
+    if (!hours || !minutes) return time12h;
+    
+    let hours24 = parseInt(hours, 10);
+    
+    // Конвертируем в 24-часовой формат
+    if (period.toUpperCase() === 'PM' && hours24 !== 12) {
+      hours24 += 12;
+    } else if (period.toUpperCase() === 'AM' && hours24 === 12) {
+      hours24 = 0;
+    }
+    
+    // Форматируем с ведущими нулями
+    return `${hours24.toString().padStart(2, '0')}:${minutes}`;
+  } catch (error) {
+    console.error('Ошибка конвертации времени:', error);
+    return time12h;
+  }
 };
 
 // Форматирование даты
