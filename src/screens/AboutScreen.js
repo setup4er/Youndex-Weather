@@ -5,6 +5,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Linking,
+  Image
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeStyles } from '../styles/commonStyles';
@@ -44,11 +45,13 @@ const AboutScreen = () => {
   return (
     <ScrollView style={aboutStyles.container}>
       <View style={aboutStyles.header}>
-        <View style={aboutStyles.logo}>
-          <Ionicons name="partly-sunny" size={64} color="#3498db" />
+        <View>
+          <Image source={require('../../assets/icon.png')}
+          style={aboutStyles.logoImage}
+          />
         </View>
-        <Text style={aboutStyles.appName}>WeatherApp</Text>
-        <Text style={aboutStyles.appVersion}>Версия 1.0.0</Text>
+        <Text style={aboutStyles.appName}>ТЫндекс Погода</Text>
+        <Text style={aboutStyles.appVersion}>Версия 4.1.0</Text>
         <Text style={aboutStyles.appDescription}>
           Простое и удобное приложение для отслеживания погоды
         </Text>
@@ -73,18 +76,9 @@ const AboutScreen = () => {
       <InfoCard
         icon="code"
         title="Разработка"
-        description="Приложение разработано с использованием React Native и Expo. Код открыт и доступен на GitHub."
-        action={{
-          text: 'GitHub репозиторий',
-          onPress: () => openLink('https://github.com')
-        }}
+        description="Приложение разработано с использованием React Native и Expo."
       />
 
-      <View style={aboutStyles.footer}>
-        <Text style={aboutStyles.footerText}>
-          © 2024 WeatherApp. Все права защищены.
-        </Text>
-      </View>
     </ScrollView>
   );
 };

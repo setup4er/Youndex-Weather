@@ -1080,6 +1080,10 @@ export const createStyles = (isDarkTheme = false) => {
         backgroundColor: colors.card,
         marginBottom: 16,
       },
+      logoImage: {
+        width: 100, // или нужный вам размер
+        height: 100, // или нужный вам размер
+      },
       logo: {
         width: 80,
         height: 80,
