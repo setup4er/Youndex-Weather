@@ -3,11 +3,13 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeStyles } from '../styles/commonStyles';
 import ThemeContext from '../context/ThemeContext';
-import { getWeatherIcon, formatTime } from '../utils/helpers';
+import { getWeatherIcon, formatTime, formatTemperature, formatWindSpeed } from '../utils/helpers';
+import { useSettings } from '../context/ThemeContext';
 
 const WeatherCard = ({ weatherData, isFavorite = false, onFavoritePress, showFavoriteButton = true }) => {
   const { weatherStyles } = useThemeStyles();
   const { isDarkTheme } = useContext(ThemeContext);
+  const { settings } = useSettings();
 
   if (!weatherData) return null;
 
@@ -15,9 +17,17 @@ const WeatherCard = ({ weatherData, isFavorite = false, onFavoritePress, showFav
 
   const weatherDetails = [
     { icon: '💨', label: 'Влажность', value: `${current.humidity}%` },
-    { icon: '🌬️', label: 'Ветер', value: `${current.wind_kph} км/ч` },
+    { 
+      icon: '🌬️', 
+      label: 'Ветер', 
+      value: formatWindSpeed(current.wind_kph, settings)
+    },
     { icon: '👁️', label: 'Видимость', value: `${current.vis_km} км` },
-    { icon: '🌡️', label: 'Ощущается', value: `${Math.round(current.feelslike_c)}°C` },
+    { 
+      icon: '🌡️', 
+      label: 'Ощущается', 
+      value: formatTemperature(current.feelslike_c, settings)
+    },
     { icon: '📊', label: 'Давление', value: `${current.pressure_mb} hPa` },
     { icon: '☂️', label: 'Осадки', value: `${current.precip_mm} mm` },
   ];
@@ -53,7 +63,7 @@ const WeatherCard = ({ weatherData, isFavorite = false, onFavoritePress, showFav
             {getWeatherIcon(current.condition.text)}
           </Text>
           <Text style={weatherStyles.temperature}>
-            {Math.round(current.temp_c)}°C
+            {formatTemperature(current.temp_c, settings)}
           </Text>
         </View>
         <View style={weatherStyles.conditionContainer}>

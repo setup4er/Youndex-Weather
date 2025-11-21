@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, AppState } from 'react-native';
 import AppNavigator from './src/navigation/AppNavigator';
 import { initDatabase, getSettings } from './src/services/storageService';
 import * as NavigationBar from 'expo-navigation-bar';
-import ThemeContext from './src/context/ThemeContext';
+import { ThemeProvider, SettingsProvider } from './src/context/ThemeContext';
 
 const LoadingScreen = ({ message }) => (
   <View style={styles.loadingContainer}>
@@ -40,24 +40,25 @@ const CustomDarkTheme = {
 
 export default function App() {
   const [appReady, setAppReady] = useState(false);
-  const [isDarkTheme, setIsDarkTheme] = useState(false);
   const [appState, setAppState] = useState(AppState.currentState);
+  const [initialTheme, setInitialTheme] = useState(null);
 
-  // Загрузка настроек темы
-  const loadThemeSettings = async () => {
+  // Загрузка начальных настроек темы
+  const loadInitialTheme = async () => {
     try {
       const settings = await getSettings();
-      console.log('Загруженные настройки темы:', settings.darkMode);
-      setIsDarkTheme(settings.darkMode || false);
+      console.log('🎨 Загружена начальная тема:', settings.darkMode);
+      setInitialTheme(settings.darkMode || false);
     } catch (error) {
-      console.error('Ошибка загрузки темы:', error);
+      console.error('❌ Ошибка загрузки начальной темы:', error);
+      setInitialTheme(false);
     }
   };
 
   // Настройка навигационной панели
-  const setupNavigationBar = async () => {
+  const setupNavigationBar = async (isDarkTheme) => {
     try {
-      console.log('Настройка навигационной панели...');
+      console.log('Настройка навигационной панели для темы:', isDarkTheme ? 'темная' : 'светлая');
       
       // Скрываем навигационную панель
       await NavigationBar.setVisibilityAsync('hidden');
@@ -74,12 +75,6 @@ export default function App() {
     }
   };
 
-  // Переключение темы
-  const toggleTheme = (darkMode) => {
-    console.log('Переключение темы на:', darkMode);
-    setIsDarkTheme(darkMode);
-  };
-
   // Обработчик изменения состояния приложения
   useEffect(() => {
     const handleAppStateChange = (nextAppState) => {
@@ -87,7 +82,7 @@ export default function App() {
       
       if (nextAppState === 'active') {
         // При возврате в активное состояние перестраиваем навигационную панель
-        setupNavigationBar();
+        setupNavigationBar(initialTheme);
       }
       
       setAppState(nextAppState);
@@ -98,20 +93,21 @@ export default function App() {
     return () => {
       subscription.remove();
     };
-  }, []);
+  }, [initialTheme]);
 
   useEffect(() => {
     const initializeApp = async () => {
       try {
         console.log('Запуск приложения ТЫндекс Погода...');
         
-        // Первоначальная настройка навигационной панели
-        await setupNavigationBar();
-        
+        await loadInitialTheme();
         await initDatabase();
-        await loadThemeSettings();
+        
+        // Первоначальная настройка навигационной панели
+        await setupNavigationBar(initialTheme);
+        
         setAppReady(true);
-        console.log('Приложение готово к работе, тема:', isDarkTheme ? 'темная' : 'светлая');
+        console.log('Приложение готово к работе, начальная тема:', initialTheme);
       } catch (error) {
         console.log('Ошибка при инициализации:', error);
         setAppReady(true);
@@ -121,25 +117,20 @@ export default function App() {
     initializeApp();
   }, []);
 
-  // Дополнительный эффект для настройки панели при изменении темы
-  useEffect(() => {
-    if (appReady) {
-      setupNavigationBar();
-    }
-  }, [isDarkTheme, appReady]);
-
-  if (!appReady) {
+  if (!appReady || initialTheme === null) {
     return (
-      <LoadingScreen message="Инициализация хранилища..." />
+      <LoadingScreen message="Инициализация приложения..." />
     );
   }
 
   return (
-    <ThemeContext.Provider value={{ isDarkTheme, toggleTheme }}>
-      <NavigationContainer theme={isDarkTheme ? CustomDarkTheme : CustomLightTheme}>
-        <AppNavigator />
-      </NavigationContainer>
-    </ThemeContext.Provider>
+    <SettingsProvider initialTheme={initialTheme}>
+      <ThemeProvider>
+        <NavigationContainer theme={initialTheme ? CustomDarkTheme : CustomLightTheme}>
+          <AppNavigator />
+        </NavigationContainer>
+      </ThemeProvider>
+    </SettingsProvider>
   );
 }
 

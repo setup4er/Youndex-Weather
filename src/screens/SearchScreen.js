@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 
 import SearchBar from '../components/SearchBar';
+import { getSettings } from '../services/storageService';
 import WeatherCard from '../components/WeatherCard';
 import LoadingIndicator from '../components/LoadingIndicator';
 import { fetchWeatherData } from '../services/weatherAPI';
@@ -36,9 +37,30 @@ const SearchScreen = () => {
   const [searchPerformed, setSearchPerformed] = useState(false);
   const [isFavoriteCity, setIsFavoriteCity] = useState(false);
   const [favoriteLoading, setFavoriteLoading] = useState(false);
-  
+  const [settings, setSettings] = useState({
+    celsius: true,
+    kmh: true
+  });
+
   const { searchScreenStyles } = useThemeStyles();
   const { isDarkTheme } = useContext(ThemeContext);
+
+  // Загрузка настроек при монтировании
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    try {
+      const savedSettings = await getSettings();
+      setSettings({
+        celsius: savedSettings.celsius !== undefined ? savedSettings.celsius : true,
+        kmh: savedSettings.kmh !== undefined ? savedSettings.kmh : true
+      });
+    } catch (error) {
+      console.error('Error loading settings in SearchScreen:', error);
+    }
+  };
 
   const handleSearch = async (query = searchQuery) => {
     const trimmedQuery = query.trim();

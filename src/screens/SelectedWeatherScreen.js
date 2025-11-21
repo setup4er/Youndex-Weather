@@ -100,6 +100,19 @@ const SelectedWeatherScreen = () => {
       }
     >
       <View style={selectedWeatherStyles.content}>
+        {/* Заголовок с кнопкой назад */}
+        <View style={selectedWeatherStyles.header}>
+          <TouchableOpacity 
+            style={selectedWeatherStyles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons name="arrow-back" size={24} color={isDarkTheme ? "#ffffff" : "#2c3e50"} />
+          </TouchableOpacity>
+          <Text style={selectedWeatherStyles.title}>Погода в {location}</Text>
+          <View style={selectedWeatherStyles.backButtonPlaceholder} />
+        </View>
+
+        {/* Погода */}
         {weatherData && (
           <WeatherCard 
             weatherData={weatherData} 

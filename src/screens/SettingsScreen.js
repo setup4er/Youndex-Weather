@@ -1,6 +1,4 @@
-// В options SettingsScreen в AppNavigator уже установлен заголовок "Настройки"
-// Но если нужно изменить заголовок в самом компоненте, можно добавить:
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useContext } from 'react';
 import {
   View,
   Text,
@@ -11,85 +9,29 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeStyles } from '../styles/commonStyles';
-import { getSettings, saveSettings, clearSearchHistory, clearAllAppData } from '../services/storageService';
+import { clearSearchHistory, clearAllAppData } from '../services/storageService';
 import { clearCache } from '../services/weatherAPI';
 import ThemeContext from '../context/ThemeContext';
+import { useSettings } from '../context/ThemeContext';
 
 const SettingsScreen = () => {
   const { settingsStyles } = useThemeStyles();
   const { isDarkTheme, toggleTheme } = useContext(ThemeContext);
-  const [settings, setSettings] = useState({
-    autoRefresh: true,
-    darkMode: false,
-    celsius: true,
-    kmh: true,
-  });
+  const { settings, updateSettings } = useSettings();
 
-  // Загрузка настроек при монтировании
-  useEffect(() => {
-    loadSettings();
-  }, []);
-
-  // Загрузка настроек из хранилища
-  const loadSettings = async () => {
-    try {
-      const savedSettings = await getSettings();
-      console.log('Loaded settings:', savedSettings);
-      setSettings(prev => ({
-        ...prev,
-        ...savedSettings,
-        darkMode: savedSettings.darkMode || false,
-        autoRefresh: savedSettings.autoRefresh !== undefined ? savedSettings.autoRefresh : true
-      }));
-    } catch (error) {
-      console.error('Error loading settings:', error);
-    }
-  };
-
-  // Сохранение настроек при изменении
-  const saveSettingsToStorage = async (newSettings) => {
-    try {
-      const correctSettings = {
-        autoRefresh: newSettings.autoRefresh,
-        darkMode: newSettings.darkMode,
-        celsius: newSettings.celsius,
-        kmh: newSettings.kmh,
-        temperatureUnit: newSettings.celsius ? 'celsius' : 'fahrenheit',
-        windSpeedUnit: newSettings.kmh ? 'kmh' : 'mph',
-        theme: newSettings.darkMode ? 'dark' : 'light'
-      };
-      
-      await saveSettings(correctSettings);
-      console.log('✅ Настройки сохранены:', correctSettings);
-      
-      // Обновляем тему в контексте
-      if (toggleTheme) {
-        toggleTheme(newSettings.darkMode);
-      }
-      
-      // Показываем уведомление об изменении автообновления
-      if (settings.autoRefresh !== newSettings.autoRefresh) {
-        Alert.alert(
-          'Настройки сохранены', 
-          `Автообновление ${newSettings.autoRefresh ? 'включено' : 'выключено'}. 
-          Изменения вступят в силу при следующем переходе на главный экран.`
-        );
-      }
-      
-    } catch (error) {
-      console.error('❌ Ошибка сохранения настроек:', error);
-      Alert.alert('Ошибка', 'Не удалось сохранить настройки');
-    }
-  };
-
-  const toggleSetting = async (key) => {
-    const newSettings = {
-      ...settings,
-      [key]: !settings[key]
-    };
+  // Обработчик переключения настроек
+  const handleToggleSetting = (key) => {
+    const newValue = !settings[key];
+    console.log(`🔄 Переключение настройки ${key} с ${settings[key]} на ${newValue}`);
     
-    setSettings(newSettings);
-    await saveSettingsToStorage(newSettings);
+    updateSettings({ [key]: newValue });
+  };
+
+  // Обработчик переключения темы
+  const handleThemeToggle = () => {
+    const newDarkMode = !settings.darkMode;
+    console.log('🎨 Переключение темы на:', newDarkMode);
+    updateSettings({ darkMode: newDarkMode });
   };
 
   const handleClearCache = async () => {
@@ -103,8 +45,8 @@ const SettingsScreen = () => {
             text: 'Очистить', 
             style: 'destructive',
             onPress: async () => {
-              await clearCache(); // Очищаем кэш API
-              await clearSearchHistory(); // Очищаем историю поиска
+              await clearCache();
+              await clearSearchHistory();
               Alert.alert('✅ Успех', 'Кэш и история поиска очищены');
             }
           },
@@ -131,8 +73,7 @@ const SettingsScreen = () => {
               celsius: true,
               kmh: true,
             };
-            setSettings(defaultSettings);
-            await saveSettingsToStorage(defaultSettings);
+            await updateSettings(defaultSettings);
             Alert.alert('✅ Успех', 'Настройки сброшены к значениям по умолчанию');
           }
         },
@@ -202,14 +143,14 @@ const SettingsScreen = () => {
           title="Темная тема"
           description="Использовать темную цветовую схему"
           value={settings.darkMode}
-          onToggle={() => toggleSetting('darkMode')}
+          onToggle={handleThemeToggle}
         />
         <SettingItem
           icon="refresh"
           title="Авто-обновление"
           description="Автоматически обновлять погоду при открытии главного экрана"
           value={settings.autoRefresh}
-          onToggle={() => toggleSetting('autoRefresh')}
+          onToggle={() => handleToggleSetting('autoRefresh')}
         />
       </View>
 
@@ -221,14 +162,14 @@ const SettingsScreen = () => {
           title="Температура в °C"
           description="Отображать температуру в Цельсиях"
           value={settings.celsius}
-          onToggle={() => toggleSetting('celsius')}
+          onToggle={() => handleToggleSetting('celsius')}
         />
         <SettingItem
           icon="speedometer"
           title="Скорость ветра в км/ч"
           description="Отображать скорость ветра в километрах в час"
           value={settings.kmh}
-          onToggle={() => toggleSetting('kmh')}
+          onToggle={() => handleToggleSetting('kmh')}
         />
       </View>
 
@@ -288,6 +229,18 @@ const SettingsScreen = () => {
           <Text style={settingsStyles.infoLabel}>Текущая тема:</Text>
           <Text style={settingsStyles.infoValue}>
             {settings.darkMode ? 'Темная' : 'Светлая'}
+          </Text>
+        </View>
+        <View style={settingsStyles.infoItem}>
+          <Text style={settingsStyles.infoLabel}>Единицы температуры:</Text>
+          <Text style={settingsStyles.infoValue}>
+            {settings.celsius ? '°C' : 'K'}
+          </Text>
+        </View>
+        <View style={settingsStyles.infoItem}>
+          <Text style={settingsStyles.infoLabel}>Единицы ветра:</Text>
+          <Text style={settingsStyles.infoValue}>
+            {settings.kmh ? 'км/ч' : 'м/с'}
           </Text>
         </View>
       </View>

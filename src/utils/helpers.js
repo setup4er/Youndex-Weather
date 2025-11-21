@@ -78,20 +78,34 @@ export const checkInternetConnection = async () => {
   }
 };
 
-// Форматирование температуры
-export const formatTemperature = (temp, unit = 'c') => {
-  if (unit === 'c') {
-    return `${Math.round(temp)}°C`;
+// Форматирование температуры с учетом настроек
+export const formatTemperature = (tempC, settings) => {
+  if (settings.celsius) {
+    return `${Math.round(tempC)}°C`;
   } else {
-    return `${Math.round(temp * 9/5 + 32)}°F`;
+    // Конвертация в Кельвины: K = C + 273.15
+    const tempK = tempC + 273.15;
+    return `${Math.round(tempK)}K`;
   }
 };
 
-// Форматирование скорости ветра
-export const formatWindSpeed = (speed, unit = 'kmh') => {
-  if (unit === 'kmh') {
-    return `${speed} км/ч`;
+// Форматирование скорости ветра с учетом настроек
+export const formatWindSpeed = (speedKph, settings) => {
+  if (settings.kmh) {
+    return `${speedKph} км/ч`;
   } else {
-    return `${(speed / 1.609).toFixed(1)} миль/ч`;
+    // Конвертация в м/с: 1 км/ч = 0.277778 м/с
+    const speedMs = speedKph * 0.277778;
+    return `${speedMs.toFixed(1)} м/с`;
+  }
+};
+
+// Форматирование температуры для истории и избранного
+export const formatTemperatureForDisplay = (tempC, settings) => {
+  if (settings.celsius) {
+    return `${tempC}°C`;
+  } else {
+    const tempK = tempC + 273.15;
+    return `${Math.round(tempK)}K`;
   }
 };

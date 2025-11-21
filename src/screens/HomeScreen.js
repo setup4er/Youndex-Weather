@@ -14,14 +14,17 @@ import { Ionicons } from '@expo/vector-icons';
 import WeatherCard from '../components/WeatherCard';
 import LoadingIndicator from '../components/LoadingIndicator';
 import { fetchWeatherByCoords } from '../services/weatherAPI';
-import { saveSearchHistory, getFavorites, removeFromFavorites, addToFavorites, isFavorite, getSettings } from '../services/storageService';
+import { saveSearchHistory, getFavorites, removeFromFavorites, addToFavorites, isFavorite } from '../services/storageService';
 import { useThemeStyles } from '../styles/commonStyles';
 import ThemeContext from '../context/ThemeContext';
+import { formatTemperatureForDisplay } from '../utils/helpers';
+import { useSettings } from '../context/ThemeContext';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const { homeStyles } = useThemeStyles();
   const { isDarkTheme } = useContext(ThemeContext);
+  const { settings } = useSettings();
 
   const [weatherData, setWeatherData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -31,41 +34,23 @@ const HomeScreen = () => {
   const [favorites, setFavorites] = useState([]);
   const [favoritesLoading, setFavoritesLoading] = useState(false);
   const [currentLocationIsFavorite, setCurrentLocationIsFavorite] = useState(false);
-  const [autoRefresh, setAutoRefresh] = useState(true);
   const [lastRefresh, setLastRefresh] = useState(null);
 
-  // Загрузка настроек при монтировании
+  // Загрузка данных при монтировании
   useEffect(() => {
-    loadSettings();
     getCurrentLocation();
     loadFavorites();
   }, []);
 
-  // Функция для загрузки настроек
-  const loadSettings = async () => {
-    try {
-      const settings = await getSettings();
-      console.log('🔄 Загружены настройки автообновления:', settings.autoRefresh);
-
-      // Убедимся, что значение корректно
-      const shouldAutoRefresh = settings.autoRefresh !== undefined ? settings.autoRefresh : true;
-      console.log('✅ Установлено автообновление:', shouldAutoRefresh);
-      setAutoRefresh(shouldAutoRefresh);
-    } catch (error) {
-      console.error('❌ Ошибка загрузки настроек:', error);
-      setAutoRefresh(true); // Значение по умолчанию
-    }
-  };
-
-  // Улучшенный useFocusEffect с проверкой времени
+  // Улучшенный useFocusEffect с проверкой времени и настроек
   useFocusEffect(
     useCallback(() => {
-      console.log('🎯 Фокус на главном экране, автообновление:', autoRefresh);
+      console.log('🎯 Фокус на главном экране, автообновление:', settings.autoRefresh);
       
-      if (autoRefresh) {
+      if (settings.autoRefresh) {
         const now = Date.now();
         // Обновляем только если прошло больше 2 минут с последнего обновления
-        if (!lastRefresh || (now - lastRefresh) > 2 * 60 * 1000) {
+        if (!lastRefresh || (now - lastRefresh) > 10 * 1000) {
           console.log('🔄 Автообновление запущено');
           refreshAllData();
         } else {
@@ -76,7 +61,7 @@ const HomeScreen = () => {
         // Все равно загружаем избранное, но не погоду
         loadFavorites();
       }
-    }, [autoRefresh, lastRefresh])
+    }, [settings.autoRefresh, lastRefresh]) // Добавляем settings.autoRefresh в зависимости
   );
 
   // Функция для полного обновления данных
@@ -330,7 +315,9 @@ const HomeScreen = () => {
                     onPress={() => handleFavoritePress(favorite)}
                   >
                     <Text style={homeStyles.favoriteCity}>{favorite.location}</Text>
-                    <Text style={homeStyles.favoriteTemp}>{favorite.temperature}°C</Text>
+                    <Text style={homeStyles.favoriteTemp}>
+                      {formatTemperatureForDisplay(favorite.temperature, settings)}
+                    </Text>
                     <Text style={homeStyles.favoriteCondition}>{favorite.condition}</Text>
                   </TouchableOpacity>
                 ))}
@@ -364,7 +351,7 @@ const HomeScreen = () => {
             <View style={homeStyles.infoItem}>
               <Ionicons name="refresh" size={20} color="#3498db" />
               <Text style={homeStyles.infoText}>
-                {autoRefresh 
+                {settings.autoRefresh 
                   ? 'Автообновление включено - данные обновляются при переходе на вкладку' 
                   : 'Автообновление выключено - используйте pull-to-refresh для обновления'
                 }

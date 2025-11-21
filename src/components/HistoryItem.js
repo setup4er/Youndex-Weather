@@ -3,11 +3,13 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeStyles } from '../styles/commonStyles';
 import ThemeContext from '../context/ThemeContext';
-import { getWeatherIcon, formatDate } from '../utils/helpers';
+import { getWeatherIcon, formatDate, formatTemperatureForDisplay } from '../utils/helpers';
+import { useSettings } from '../context/ThemeContext';
 
 const HistoryItem = ({ item, onPress, onDelete }) => {
   const { historyItemStyles } = useThemeStyles();
   const { isDarkTheme } = useContext(ThemeContext);
+  const { settings } = useSettings();
 
   const getTypeIcon = (type) => {
     return type === 'gps' ? 'location' : 'search';
@@ -51,7 +53,7 @@ const HistoryItem = ({ item, onPress, onDelete }) => {
               {getWeatherIcon(item.condition)}
             </Text>
             <Text style={historyItemStyles.temperature}>
-              {item.temperature}°C
+              {formatTemperatureForDisplay(item.temperature, settings)}
             </Text>
           </View>
           <Text style={historyItemStyles.time}>
