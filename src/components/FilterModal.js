@@ -1,17 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   View,
   Text,
   Modal,
   TouchableOpacity,
   ScrollView,
-  Switch,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { filterModalStyles } from '../styles/commonStyles';
+import { useThemeStyles } from '../styles/commonStyles';
+import ThemeContext from '../context/ThemeContext';
 
 const FilterModal = ({ visible, onClose, filters, onFiltersChange }) => {
   const [localFilters, setLocalFilters] = useState(filters);
+  const { filterModalStyles } = useThemeStyles();
+  const { isDarkTheme } = useContext(ThemeContext);
 
   const handleApply = () => {
     onFiltersChange(localFilters);
@@ -64,16 +66,14 @@ const FilterModal = ({ visible, onClose, filters, onFiltersChange }) => {
       onRequestClose={onClose}
     >
       <View style={filterModalStyles.container}>
-        {/* Заголовок */}
         <View style={filterModalStyles.header}>
           <Text style={filterModalStyles.title}>Фильтры и сортировка</Text>
           <TouchableOpacity onPress={onClose}>
-            <Ionicons name="close" size={24} color="#7f8c8d" />
+            <Ionicons name="close" size={24} color={isDarkTheme ? "#b0b0b0" : "#7f8c8d"} />
           </TouchableOpacity>
         </View>
 
         <ScrollView style={filterModalStyles.content}>
-          {/* Сортировка */}
           <FilterSection title="Сортировать по">
             <View style={filterModalStyles.optionsRow}>
               <FilterOption
@@ -97,7 +97,6 @@ const FilterModal = ({ visible, onClose, filters, onFiltersChange }) => {
             </View>
           </FilterSection>
 
-          {/* Порядок */}
           <FilterSection title="Порядок">
             <View style={filterModalStyles.optionsRow}>
               <FilterOption
@@ -115,7 +114,6 @@ const FilterModal = ({ visible, onClose, filters, onFiltersChange }) => {
             </View>
           </FilterSection>
 
-          {/* Тип поиска */}
           <FilterSection title="Тип поиска">
             <View style={filterModalStyles.optionsRow}>
               <FilterOption
@@ -139,7 +137,6 @@ const FilterModal = ({ visible, onClose, filters, onFiltersChange }) => {
             </View>
           </FilterSection>
 
-          {/* Диапазон дат */}
           <FilterSection title="Период">
             <View style={filterModalStyles.optionsColumn}>
               <FilterOption
@@ -170,7 +167,6 @@ const FilterModal = ({ visible, onClose, filters, onFiltersChange }) => {
           </FilterSection>
         </ScrollView>
 
-        {/* Кнопки действий */}
         <View style={filterModalStyles.footer}>
           <TouchableOpacity 
             style={filterModalStyles.resetButton}

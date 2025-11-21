@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { historyItemStyles } from '../styles/commonStyles';
+import { useThemeStyles } from '../styles/commonStyles';
+import ThemeContext from '../context/ThemeContext';
 import { getWeatherIcon, formatDate } from '../utils/helpers';
 
 const HistoryItem = ({ item, onPress, onDelete }) => {
+  const { historyItemStyles } = useThemeStyles();
+  const { isDarkTheme } = useContext(ThemeContext);
+
   const getTypeIcon = (type) => {
     return type === 'gps' ? 'location' : 'search';
   };
@@ -20,7 +24,6 @@ const HistoryItem = ({ item, onPress, onDelete }) => {
       activeOpacity={0.7}
     >
       <View style={historyItemStyles.content}>
-        {/* Левая часть - иконка типа и местоположение */}
         <View style={historyItemStyles.mainInfo}>
           <View style={[
             historyItemStyles.typeIcon,
@@ -42,7 +45,6 @@ const HistoryItem = ({ item, onPress, onDelete }) => {
           </View>
         </View>
 
-        {/* Правая часть - температура и время */}
         <View style={historyItemStyles.weatherInfo}>
           <View style={historyItemStyles.temperatureContainer}>
             <Text style={historyItemStyles.weatherIcon}>
@@ -58,12 +60,10 @@ const HistoryItem = ({ item, onPress, onDelete }) => {
         </View>
       </View>
 
-      {/* Условия погоды */}
       <Text style={historyItemStyles.condition}>
         {item.condition}
       </Text>
 
-      {/* Кнопка удаления */}
       {onDelete && (
         <TouchableOpacity 
           style={historyItemStyles.deleteButton}

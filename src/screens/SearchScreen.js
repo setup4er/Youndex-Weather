@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   View,
   Text,
@@ -14,10 +14,10 @@ import SearchBar from '../components/SearchBar';
 import WeatherCard from '../components/WeatherCard';
 import LoadingIndicator from '../components/LoadingIndicator';
 import { fetchWeatherData } from '../services/weatherAPI';
-import { saveSearchHistory } from '../services/storageService';
-import { searchScreenStyles } from '../styles/commonStyles';
+import { saveSearchHistory, addToFavorites, isFavorite, removeFromFavorites } from '../services/storageService';
+import { useThemeStyles } from '../styles/commonStyles';
+import ThemeContext from '../context/ThemeContext';
 
-// Популярные города для быстрого доступа
 const POPULAR_CITIES = [
   { name: 'Москва', country: 'Россия' },
   { name: 'Санкт-Петербург', country: 'Россия' },
@@ -34,6 +34,11 @@ const SearchScreen = () => {
   const [weatherData, setWeatherData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [searchPerformed, setSearchPerformed] = useState(false);
+  const [isFavoriteCity, setIsFavoriteCity] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
+  
+  const { searchScreenStyles } = useThemeStyles();
+  const { isDarkTheme } = useContext(ThemeContext);
 
   const handleSearch = async (query = searchQuery) => {
     const trimmedQuery = query.trim();
@@ -55,7 +60,9 @@ const SearchScreen = () => {
       const data = await fetchWeatherData(trimmedQuery);
       setWeatherData(data);
       
-      // Сохраняем в историю
+      const favoriteStatus = await isFavorite(data.location.name);
+      setIsFavoriteCity(favoriteStatus);
+      
       await saveSearchHistory({
         location: data.location.name,
         country: data.location.country,
@@ -74,6 +81,27 @@ const SearchScreen = () => {
     }
   };
 
+  const handleFavoritePress = async () => {
+    if (favoriteLoading || !weatherData) return;
+    
+    setFavoriteLoading(true);
+    try {
+      if (isFavoriteCity) {
+        await removeFromFavorites(weatherData.location.name);
+        setIsFavoriteCity(false);
+        Alert.alert('Успех', 'Город удален из избранного');
+      } else {
+        await addToFavorites(weatherData);
+        setIsFavoriteCity(true);
+        Alert.alert('Успех', 'Город добавлен в избранное');
+      }
+    } catch (error) {
+      Alert.alert('Ошибка', error.message);
+    } finally {
+      setFavoriteLoading(false);
+    }
+  };
+
   const handleCityPress = (cityName) => {
     setSearchQuery(cityName);
     handleSearch(cityName);
@@ -83,6 +111,7 @@ const SearchScreen = () => {
     setSearchQuery('');
     setWeatherData(null);
     setSearchPerformed(false);
+    setIsFavoriteCity(false);
   };
 
   return (
@@ -112,16 +141,35 @@ const SearchScreen = () => {
 
           {weatherData && !loading && (
             <View style={searchScreenStyles.resultSection}>
-              <Text style={searchScreenStyles.resultTitle}>
-                Погода в {weatherData.location.name}
-              </Text>
-              <WeatherCard weatherData={weatherData} />
+              <View style={searchScreenStyles.resultHeader}>
+                <Text style={searchScreenStyles.resultTitle}>
+                  Погода в {weatherData.location.name}
+                </Text>
+                <TouchableOpacity 
+                  style={[
+                    searchScreenStyles.favoriteButton,
+                    isFavoriteCity && searchScreenStyles.favoriteButtonActive
+                  ]}
+                  onPress={handleFavoritePress}
+                  disabled={favoriteLoading}
+                >
+                  <Ionicons 
+                    name={isFavoriteCity ? "star" : "star-outline"} 
+                    size={24} 
+                    color={isFavoriteCity ? "#FFD700" : (isDarkTheme ? "#b0b0b0" : "#7f8c8d")} 
+                  />
+                </TouchableOpacity>
+              </View>
+              <WeatherCard 
+                weatherData={weatherData} 
+                showFavoriteButton={false}
+              />
             </View>
           )}
 
           {searchPerformed && !weatherData && !loading && (
             <View style={searchScreenStyles.noResults}>
-              <Ionicons name="search-outline" size={48} color="#bdc3c7" />
+              <Ionicons name="search-outline" size={48} color={isDarkTheme ? "#666666" : "#bdc3c7"} />
               <Text style={searchScreenStyles.noResultsText}>
                 Ничего не найдено
               </Text>

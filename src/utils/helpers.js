@@ -48,7 +48,7 @@ export const getWeatherIcon = (condition) => {
   return icons[conditionLower] || '🌤️';
 };
 
-// Добавление в историю поиска (теперь сохраняется в БД, поэтому эта функция не нужна, но оставим для совместимости)
+// Добавление в историю поиска
 export const addToSearchHistory = (history, weatherData) => {
   const newSearch = {
     id: Date.now().toString(),

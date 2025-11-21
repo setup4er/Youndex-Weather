@@ -27,7 +27,6 @@ export const STORAGE_KEYS = {
 export const DEFAULT_SETTINGS = {
   temperatureUnit: 'celsius',
   windSpeedUnit: 'kmh',
-  notifications: true,
   autoRefresh: true,
   theme: 'light'
 };

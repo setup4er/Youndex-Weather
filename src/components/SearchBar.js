@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   View,
   TextInput,
@@ -6,7 +6,8 @@ import {
   Text,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { searchStyles } from '../styles/commonStyles';
+import { useThemeStyles } from '../styles/commonStyles';
+import ThemeContext from '../context/ThemeContext';
 
 const SearchBar = ({ 
   searchQuery, 
@@ -16,19 +17,22 @@ const SearchBar = ({
   loading,
   placeholder = "Введите город или страну..." 
 }) => {
+  const { searchStyles } = useThemeStyles();
+  const { isDarkTheme } = useContext(ThemeContext);
+
   return (
     <View style={searchStyles.container}>
       <View style={searchStyles.inputContainer}>
         <Ionicons 
           name="search" 
           size={20} 
-          color="#7f8c8d" 
+          color={isDarkTheme ? "#b0b0b0" : "#7f8c8d"} 
           style={searchStyles.searchIcon}
         />
         <TextInput
           style={searchStyles.input}
           placeholder={placeholder}
-          placeholderTextColor="#999"
+          placeholderTextColor={isDarkTheme ? "#666666" : "#999"}
           value={searchQuery}
           onChangeText={onSearchQueryChange}
           onSubmitEditing={() => onSearch()}
@@ -40,7 +44,7 @@ const SearchBar = ({
             style={searchStyles.clearButton}
             onPress={onClear}
           >
-            <Ionicons name="close-circle" size={20} color="#7f8c8d" />
+            <Ionicons name="close-circle" size={20} color={isDarkTheme ? "#b0b0b0" : "#7f8c8d"} />
           </TouchableOpacity>
         )}
       </View>

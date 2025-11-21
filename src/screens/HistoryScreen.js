@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
+import { useNavigation } from '@react-navigation/native';
 import HistoryItem from '../components/HistoryItem';
 import FilterModal from '../components/FilterModal';
 import LoadingIndicator from '../components/LoadingIndicator';
@@ -18,9 +19,14 @@ import {
   deleteHistoryItem,
   exportHistory 
 } from '../services/storageService';
-import { historyScreenStyles } from '../styles/commonStyles';
+import { useThemeStyles } from '../styles/commonStyles';
+import ThemeContext from '../context/ThemeContext';
 
 const HistoryScreen = () => {
+  const navigation = useNavigation();
+  const { historyScreenStyles } = useThemeStyles();
+  const { isDarkTheme } = useContext(ThemeContext);
+
   const [history, setHistory] = useState([]);
   const [filteredHistory, setFilteredHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -56,12 +62,10 @@ const HistoryScreen = () => {
   const applyFilters = () => {
     let filtered = [...history];
 
-    // Фильтрация по типу
     if (filters.type !== 'all') {
       filtered = filtered.filter(item => item.type === filters.type);
     }
 
-    // Сортировка
     filtered.sort((a, b) => {
       if (filters.sortBy === 'date') {
         return new Date(b.timestamp) - new Date(a.timestamp);
@@ -77,7 +81,6 @@ const HistoryScreen = () => {
       return 0;
     });
 
-    // Если порядок обратный для даты
     if (filters.sortBy === 'date' && filters.order === 'asc') {
       filtered.reverse();
     }
@@ -89,6 +92,12 @@ const HistoryScreen = () => {
     setRefreshing(true);
     loadHistory();
   }, []);
+
+  const handleHistoryPress = (item) => {
+    navigation.navigate('SelectedWeather', { 
+      location: item.location
+    });
+  };
 
   const handleClearHistory = () => {
     Alert.alert(
@@ -122,7 +131,6 @@ const HistoryScreen = () => {
   const handleExportHistory = async () => {
     try {
       const historyData = await exportHistory();
-      // Здесь можно добавить логику для сохранения файла
       console.log('Export history:', historyData);
       Alert.alert('Успех', 'История экспортирована в консоль');
     } catch (error) {
@@ -191,11 +199,12 @@ const HistoryScreen = () => {
               key={item.id} 
               item={item} 
               onDelete={() => handleDeleteItem(item.id)}
+              onPress={() => handleHistoryPress(item)}
             />
           ))
         ) : (
           <View style={historyScreenStyles.emptyState}>
-            <Ionicons name="time-outline" size={64} color="#bdc3c7" />
+            <Ionicons name="time-outline" size={64} color={isDarkTheme ? '#666666' : '#bdc3c7'} />
             <Text style={historyScreenStyles.emptyStateText}>
               История поиска пуста
             </Text>

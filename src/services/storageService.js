@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HISTORY_KEY = '@my_kursach_search_history';
 const SETTINGS_KEY = '@my_kursach_settings';
+const FAVORITES_KEY = '@my_kursach_favorites';
 
 // Инициализация хранилища
 export const initDatabase = async () => {
@@ -58,7 +59,7 @@ export const clearSearchHistory = async () => {
     console.log('История очищена');
     return Promise.resolve();
   } catch (error) {
-    console.error('Ошибка очистки:', error);
+    console.error('Ошибка очистки истории:', error);
     throw error;
   }
 };
@@ -96,8 +97,11 @@ export const getSettings = async () => {
     const defaultSettings = {
       temperatureUnit: 'celsius',
       windSpeedUnit: 'kmh',
-      notifications: true,
-      theme: 'light'
+      theme: 'light',
+      darkMode: false,
+      autoRefresh: true,
+      celsius: true,
+      kmh: true
     };
     return settingsJSON ? { ...defaultSettings, ...JSON.parse(settingsJSON) } : defaultSettings;
   } catch (error) {
@@ -117,6 +121,103 @@ export const exportHistory = async () => {
     const history = await getSearchHistory();
     return JSON.stringify(history, null, 2);
   } catch (error) {
+    throw error;
+  }
+};
+
+// Добавление в избранное
+export const addToFavorites = async (weatherData) => {
+  try {
+    const existingFavorites = await getFavorites();
+    
+    const newFavorite = {
+      id: Date.now().toString(),
+      location: weatherData.location.name,
+      country: weatherData.location.country,
+      temperature: Math.round(weatherData.current.temp_c),
+      condition: weatherData.current.condition.text,
+      timestamp: new Date().toISOString(),
+      data: weatherData // Сохраняем полные данные для передачи в SelectedWeatherScreen
+    };
+    
+    // Проверяем, нет ли уже этого города в избранном
+    const isAlreadyFavorite = existingFavorites.some(
+      item => item.location === newFavorite.location
+    );
+    
+    if (isAlreadyFavorite) {
+      throw new Error('Этот город уже в избранном');
+    }
+    
+    const updatedFavorites = [newFavorite, ...existingFavorites];
+    await AsyncStorage.setItem(FAVORITES_KEY, JSON.stringify(updatedFavorites));
+    
+    console.log('✅ Город добавлен в избранное');
+    return newFavorite;
+  } catch (error) {
+    console.error('❌ Ошибка добавления в избранное:', error);
+    throw error;
+  }
+};
+
+// Получение избранного
+export const getFavorites = async () => {
+  try {
+    const favoritesJSON = await AsyncStorage.getItem(FAVORITES_KEY);
+    return favoritesJSON ? JSON.parse(favoritesJSON) : [];
+  } catch (error) {
+    console.error('❌ Ошибка загрузки избранного:', error);
+    return [];
+  }
+};
+
+// Удаление из избранного
+export const removeFromFavorites = async (location) => {
+  try {
+    const favorites = await getFavorites();
+    const updatedFavorites = favorites.filter(item => item.location !== location);
+    
+    await AsyncStorage.setItem(FAVORITES_KEY, JSON.stringify(updatedFavorites));
+    console.log('✅ Город удален из избранного');
+    
+    return updatedFavorites;
+  } catch (error) {
+    console.error('❌ Ошибка удаления из избранного:', error);
+    throw error;
+  }
+};
+
+// Проверка, есть ли город в избранном
+export const isFavorite = async (location) => {
+  try {
+    const favorites = await getFavorites();
+    return favorites.some(item => item.location === location);
+  } catch (error) {
+    console.error('❌ Ошибка проверки избранного:', error);
+    return false;
+  }
+};
+
+// Очистка избранного
+export const clearFavorites = async () => {
+  try {
+    await AsyncStorage.removeItem(FAVORITES_KEY);
+    console.log('✅ Избранное очищено');
+    return Promise.resolve();
+  } catch (error) {
+    console.error('❌ Ошибка очистки избранного:', error);
+    throw error;
+  }
+};
+
+// Полная очистка всех данных приложения
+export const clearAllAppData = async () => {
+  try {
+    await AsyncStorage.multiRemove([HISTORY_KEY, FAVORITES_KEY]);
+    console.log('✅ Все данные приложения очищены');
+    return Promise.resolve();
+  } catch (error) {
+    console.error('❌ Ошибка очистки всех данных:', error);
     throw error;
   }
 };

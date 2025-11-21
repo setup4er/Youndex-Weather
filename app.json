@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "my_kursach",
+    "name": "ТЫндекс Погода",
     "slug": "my-kursach",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -16,20 +16,27 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourname.mykursach"
+      "bundleIdentifier": "com.application.mykursach"
     },
     "android": {
+      "androidNavigationBar": {
+        "backgroundColor": "#00000000",
+        "barStyle": "light-content",
+        "visible": "sticky-immersive"
+      },
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
+
       },
-      "package": "com.yourname.mykursach",
+      "package": "com.application.mykursach",
       "permissions": [
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION"
-      ]
+      ],
+      "usesCleartextTraffic": true
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -40,8 +47,16 @@
         {
           "locationAlwaysAndWhenInUsePermission": "Разрешить $(my_kursach) использовать ваше местоположение."
         }
+      ],
+      [
+        "expo-navigation-bar",
+        {
+          "backgroundColor": "#00000000",
+          "visibility": "hidden"
+        }
       ]
     ],
+    "owner": "bruhmtfk",
     "extra": {
       "eas": {
         "projectId": "5438ac34-3221-4360-85ca-9c1e2e2063bf"

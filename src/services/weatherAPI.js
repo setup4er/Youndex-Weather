@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API_KEY = '1961bb74564d412286f53506240109';
-const BASE_URL = 'http://api.weatherapi.com/v1/current.json';
+const BASE_URL = 'https://api.weatherapi.com/v1/current.json';
 
 // Кэш для запросов
 const cache = new Map();
@@ -9,11 +9,9 @@ const CACHE_DURATION = 10 * 60 * 1000; // 10 минут
 
 export const fetchWeatherData = async (query) => {
   try {
-    // Кодируем запрос для поддержки русского языка
     const encodedQuery = encodeURIComponent(query.trim());
     const cacheKey = encodedQuery.toLowerCase();
     
-    // Проверяем кэш
     const cached = cache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
       console.log('Используем кэшированные данные для:', query);
@@ -55,6 +53,16 @@ export const fetchWeatherByCoords = async (lat, lon) => {
 
 // Очистка кэша
 export const clearCache = () => {
+  const cacheSize = cache.size;
   cache.clear();
-  console.log('Кэш очищен');
+  console.log(`✅ Кэш очищен. Удалено записей: ${cacheSize}`);
+  return cacheSize;
+};
+
+// Получение статистики кэша
+export const getCacheStats = () => {
+  return {
+    size: cache.size,
+    keys: Array.from(cache.keys())
+  };
 };

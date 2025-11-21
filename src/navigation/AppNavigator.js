@@ -1,20 +1,28 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 
-// Импортируем экраны
-import HomeScreen from '../screens/HomeScreen';
-import SearchScreen from '../screens/SearchScreen';
-import HistoryScreen from '../screens/HistoryScreen';
+// Импорт Stack Navigator'ов
+import HomeStackNavigator from './HomeStackNavigator';
+import SearchStackNavigator from './SearchStackNavigator';
+import HistoryStackNavigator from './HistoryStackNavigator';
 import SettingsScreen from '../screens/SettingsScreen';
 import AboutScreen from '../screens/AboutScreen';
 
+// Импорт контекста темы и стилей
+import ThemeContext from '../context/ThemeContext';
+import { useThemeStyles } from '../styles/commonStyles';
+
 const Tab = createBottomTabNavigator();
 
-export default function AppNavigator() {
+const AppNavigator = () => {
+  const { isDarkTheme } = useContext(ThemeContext);
+  const { tabStyles } = useThemeStyles();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
+        headerShown: false,
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
@@ -33,14 +41,38 @@ export default function AppNavigator() {
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: '#3498db',
-        tabBarInactiveTintColor: 'gray',
+        tabBarInactiveTintColor: isDarkTheme ? '#b0b0b0' : 'gray',
+        tabBarStyle: tabStyles.tabBar,
+        tabBarLabelStyle: tabStyles.tabBarLabel,
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} options={{ title: 'Главная' }} />
-      <Tab.Screen name="Search" component={SearchScreen} options={{ title: 'Поиск' }} />
-      <Tab.Screen name="History" component={HistoryScreen} options={{ title: 'История' }} />
-      <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: 'Настройки' }} />
-      <Tab.Screen name="About" component={AboutScreen} options={{ title: 'О приложении' }} />
+      <Tab.Screen 
+        name="Home" 
+        component={HomeStackNavigator}
+        options={{ title: 'Главная' }}
+      />
+      <Tab.Screen 
+        name="Search" 
+        component={SearchStackNavigator}
+        options={{ title: 'Поиск' }}
+      />
+      <Tab.Screen 
+        name="History" 
+        component={HistoryStackNavigator}
+        options={{ title: 'История' }}
+      />
+      <Tab.Screen 
+        name="Settings" 
+        component={SettingsScreen}
+        options={{ title: 'Настройки' }}
+      />
+      <Tab.Screen 
+        name="About" 
+        component={AboutScreen}
+        options={{ title: 'О приложении' }}
+      />
     </Tab.Navigator>
   );
-}
+};
+
+export default AppNavigator;

@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { weatherStyles } from '../styles/commonStyles';
+import { useThemeStyles } from '../styles/commonStyles';
+import ThemeContext from '../context/ThemeContext';
 import { getWeatherIcon, formatTime } from '../utils/helpers';
 
-const WeatherCard = ({ weatherData, onSave, showSaveButton = true }) => {
+const WeatherCard = ({ weatherData, isFavorite = false, onFavoritePress, showFavoriteButton = true }) => {
+  const { weatherStyles } = useThemeStyles();
+  const { isDarkTheme } = useContext(ThemeContext);
+
   if (!weatherData) return null;
 
   const { location, current } = weatherData;
@@ -20,7 +24,6 @@ const WeatherCard = ({ weatherData, onSave, showSaveButton = true }) => {
 
   return (
     <View style={weatherStyles.weatherCard}>
-      {/* Заголовок с кнопкой сохранения */}
       <View style={weatherStyles.cardHeader}>
         <View>
           <Text style={weatherStyles.location}>
@@ -30,17 +33,20 @@ const WeatherCard = ({ weatherData, onSave, showSaveButton = true }) => {
             {formatTime(location.localtime)}
           </Text>
         </View>
-        {showSaveButton && onSave && (
+        {showFavoriteButton && onFavoritePress && (
           <TouchableOpacity 
-            style={weatherStyles.saveButton}
-            onPress={onSave}
+            style={weatherStyles.favoriteButton}
+            onPress={onFavoritePress}
           >
-            <Ionicons name="bookmark-outline" size={20} color="#3498db" />
+            <Ionicons 
+              name={isFavorite ? "star" : "star-outline"} 
+              size={24} 
+              color={isFavorite ? "#FFD700" : (isDarkTheme ? "#b0b0b0" : "#3498db")} 
+            />
           </TouchableOpacity>
         )}
       </View>
 
-      {/* Основная информация о погоде */}
       <View style={weatherStyles.weatherMain}>
         <View style={weatherStyles.temperatureContainer}>
           <Text style={weatherStyles.weatherIcon}>
@@ -54,13 +60,9 @@ const WeatherCard = ({ weatherData, onSave, showSaveButton = true }) => {
           <Text style={weatherStyles.condition}>
             {current.condition.text}
           </Text>
-          <Text style={weatherStyles.uvIndex}>
-            UV индекс: {current.uv}
-          </Text>
         </View>
       </View>
 
-      {/* Детали погоды */}
       <View style={weatherStyles.detailsGrid}>
         {weatherDetails.map((detail, index) => (
           <View key={index} style={weatherStyles.detailItem}>
@@ -71,7 +73,6 @@ const WeatherCard = ({ weatherData, onSave, showSaveButton = true }) => {
         ))}
       </View>
 
-      {/* Дополнительная информация */}
       <View style={weatherStyles.additionalInfo}>
         <Text style={weatherStyles.additionalText}>
           Восход: {formatTime(current.sunrise)}
