@@ -19,16 +19,23 @@ import { saveSearchHistory, addToFavorites, isFavorite, removeFromFavorites } fr
 import { useThemeStyles } from '../styles/commonStyles';
 import ThemeContext from '../context/ThemeContext';
 
-const POPULAR_CITIES = [
-  { name: 'Москва', country: 'Россия' },
-  { name: 'Санкт-Петербург', country: 'Россия' },
-  { name: 'Новосибирск', country: 'Россия' },
-  { name: 'Екатеринбург', country: 'Россия' },
-  { name: 'Казань', country: 'Россия' },
-  { name: 'Киев', country: 'Украина' },
-  { name: 'Минск', country: 'Беларусь' },
-  { name: 'Алматы', country: 'Казахстан' },
-];
+import { WORLD_CAPITALS } from '../utils/constants';
+
+
+const getRandomCapitals = (count = 8) => {
+  const capitalsCopy = [...WORLD_CAPITALS];
+  const randomCapitals = [];
+  
+  const actualCount = Math.min(count, capitalsCopy.length);
+  
+  for (let i = 0; i < actualCount; i++) {
+    const randomIndex = Math.floor(Math.random() * capitalsCopy.length);
+    randomCapitals.push(capitalsCopy[randomIndex]);
+    capitalsCopy.splice(randomIndex, 1);
+  }
+  
+  return randomCapitals;
+};
 
 const SearchScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -41,6 +48,7 @@ const SearchScreen = () => {
     celsius: true,
     kmh: true
   });
+  const [randomCapitals, setRandomCapitals] = useState([]);
 
   const { searchScreenStyles } = useThemeStyles();
   const { isDarkTheme } = useContext(ThemeContext);
@@ -48,7 +56,14 @@ const SearchScreen = () => {
   // Загрузка настроек при монтировании
   useEffect(() => {
     loadSettings();
+    generateRandomCapitals();
   }, []);
+
+  // Генерация случайных столиц при каждом открытии экрана
+  const generateRandomCapitals = () => {
+    const newCapitals = getRandomCapitals(8);
+    setRandomCapitals(newCapitals);
+  };
 
   const loadSettings = async () => {
     try {
@@ -136,6 +151,10 @@ const SearchScreen = () => {
     setIsFavoriteCity(false);
   };
 
+  const handleRefreshCapitals = () => {
+    generateRandomCapitals();
+  };
+
   return (
     <KeyboardAvoidingView
       style={searchScreenStyles.container}
@@ -203,11 +222,29 @@ const SearchScreen = () => {
 
           {!searchPerformed && (
             <View style={searchScreenStyles.suggestionsSection}>
-              <Text style={searchScreenStyles.suggestionsTitle}>
-                Популярные города:
-              </Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 }}>
+                <Text style={searchScreenStyles.suggestionsTitle}>
+                  Случайные столицы мира
+                </Text>
+                <TouchableOpacity
+                  onPress={handleRefreshCapitals}
+                  style={{
+                    padding: 8,
+                    backgroundColor: isDarkTheme ? '#333' : '#f0f0f0',
+                    borderRadius: 8,
+                    flexDirection: 'row',
+                    alignItems: 'center'
+                  }}
+                >
+                  <Ionicons name="refresh" size={16} color="#3498db" />
+                  <Text style={{ color: '#3498db', fontSize: 12, marginLeft: 4 }}>
+                    Обновить
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              
               <View style={searchScreenStyles.citiesGrid}>
-                {POPULAR_CITIES.map((city, index) => (
+                {randomCapitals.map((city, index) => (
                   <TouchableOpacity
                     key={index}
                     style={searchScreenStyles.cityButton}
@@ -239,6 +276,12 @@ const SearchScreen = () => {
               <Ionicons name="checkmark-circle" size={16} color="#27ae60" />
               <Text style={searchScreenStyles.tip}>
                 Можно искать по названию страны
+              </Text>
+            </View>
+            <View style={searchScreenStyles.tipItem}>
+              <Ionicons name="checkmark-circle" size={16} color="#27ae60" />
+              <Text style={searchScreenStyles.tip}>
+                Нажмите "Обновить" для получения новых столиц
               </Text>
             </View>
           </View>
