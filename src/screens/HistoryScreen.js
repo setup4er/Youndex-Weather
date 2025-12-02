@@ -128,16 +128,6 @@ const HistoryScreen = () => {
     }
   };
 
-  const handleExportHistory = async () => {
-    try {
-      const historyData = await exportHistory();
-      console.log('Export history:', historyData);
-      Alert.alert('Успех', 'История экспортирована в консоль');
-    } catch (error) {
-      Alert.alert('Ошибка', 'Не удалось экспортировать историю');
-    }
-  };
-
   if (loading) {
     return <LoadingIndicator message="Загрузка истории..." />;
   }
@@ -153,12 +143,6 @@ const HistoryScreen = () => {
             onPress={() => setFilterModalVisible(true)}
           >
             <Ionicons name="filter" size={24} color="#3498db" />
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={historyScreenStyles.iconButton}
-            onPress={handleExportHistory}
-          >
-            <Ionicons name="download" size={24} color="#3498db" />
           </TouchableOpacity>
           {history.length > 0 && (
             <TouchableOpacity 
