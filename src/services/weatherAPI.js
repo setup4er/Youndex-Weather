@@ -3,7 +3,6 @@ import axios from 'axios';
 const API_KEY = '1961bb74564d412286f53506240109';
 const BASE_URL = 'https://api.weatherapi.com/v1';
 
-// Кэш для запросов
 const cache = new Map();
 const CACHE_DURATION = 10 * 60 * 1000; // 10 минут
 

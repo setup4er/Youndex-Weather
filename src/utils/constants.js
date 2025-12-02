@@ -38,3 +38,6 @@ export const SCREENS = {
   SETTINGS: 'Settings',
   ABOUT: 'About'
 };
+export const APP_VERSION = {
+  value: "4.1.0"
+};

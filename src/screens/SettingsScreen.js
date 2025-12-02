@@ -13,6 +13,7 @@ import { clearSearchHistory, clearAllAppData } from '../services/storageService'
 import { clearCache } from '../services/weatherAPI';
 import ThemeContext from '../context/ThemeContext';
 import { useSettings } from '../context/ThemeContext';
+import { APP_VERSION } from '../utils/constants';
 
 const SettingsScreen = () => {
   const { settingsStyles } = useThemeStyles();
@@ -213,11 +214,11 @@ const SettingsScreen = () => {
         <Text style={settingsStyles.infoTitle}>Информация</Text>
         <View style={settingsStyles.infoItem}>
           <Text style={settingsStyles.infoLabel}>Версия приложения:</Text>
-          <Text style={settingsStyles.infoValue}>1.0.0</Text>
+          <Text style={settingsStyles.infoValue}>{APP_VERSION.value}</Text>
         </View>
         <View style={settingsStyles.infoItem}>
           <Text style={settingsStyles.infoLabel}>Последнее обновление:</Text>
-          <Text style={settingsStyles.infoValue}>Ноябрь 2024</Text>
+          <Text style={settingsStyles.infoValue}>Ноябрь 2025</Text>
         </View>
         <View style={settingsStyles.infoItem}>
           <Text style={settingsStyles.infoLabel}>Статус автообновления:</Text>

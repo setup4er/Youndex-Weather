@@ -152,10 +152,10 @@ export const addToFavorites = async (weatherData) => {
     const updatedFavorites = [newFavorite, ...existingFavorites];
     await AsyncStorage.setItem(FAVORITES_KEY, JSON.stringify(updatedFavorites));
     
-    console.log('✅ Город добавлен в избранное');
+    console.log('Город добавлен в избранное');
     return newFavorite;
   } catch (error) {
-    console.error('❌ Ошибка добавления в избранное:', error);
+    console.error('Ошибка добавления в избранное:', error);
     throw error;
   }
 };
@@ -166,7 +166,7 @@ export const getFavorites = async () => {
     const favoritesJSON = await AsyncStorage.getItem(FAVORITES_KEY);
     return favoritesJSON ? JSON.parse(favoritesJSON) : [];
   } catch (error) {
-    console.error('❌ Ошибка загрузки избранного:', error);
+    console.error('Ошибка загрузки избранного:', error);
     return [];
   }
 };
@@ -178,11 +178,11 @@ export const removeFromFavorites = async (location) => {
     const updatedFavorites = favorites.filter(item => item.location !== location);
     
     await AsyncStorage.setItem(FAVORITES_KEY, JSON.stringify(updatedFavorites));
-    console.log('✅ Город удален из избранного');
+    console.log('Город удален из избранного');
     
     return updatedFavorites;
   } catch (error) {
-    console.error('❌ Ошибка удаления из избранного:', error);
+    console.error('Ошибка удаления из избранного:', error);
     throw error;
   }
 };
@@ -193,7 +193,7 @@ export const isFavorite = async (location) => {
     const favorites = await getFavorites();
     return favorites.some(item => item.location === location);
   } catch (error) {
-    console.error('❌ Ошибка проверки избранного:', error);
+    console.error('Ошибка проверки избранного:', error);
     return false;
   }
 };

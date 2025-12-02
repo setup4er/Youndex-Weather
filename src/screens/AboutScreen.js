@@ -10,6 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeStyles } from '../styles/commonStyles';
 import ThemeContext from '../context/ThemeContext';
+import { APP_VERSION } from '../utils/constants';
 
 const AboutScreen = () => {
   const { aboutStyles } = useThemeStyles();
@@ -51,7 +52,7 @@ const AboutScreen = () => {
           />
         </View>
         <Text style={aboutStyles.appName}>ТЫндекс Погода</Text>
-        <Text style={aboutStyles.appVersion}>Версия 4.1.0</Text>
+        <Text style={aboutStyles.appVersion}>Версия {APP_VERSION.value}</Text>
         <Text style={aboutStyles.appDescription}>
           Простое и удобное приложение для отслеживания погоды
         </Text>

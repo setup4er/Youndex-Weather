@@ -42,14 +42,12 @@ const HomeScreen = () => {
     loadFavorites();
   }, []);
 
-  // Улучшенный useFocusEffect с проверкой времени и настроек
   useFocusEffect(
     useCallback(() => {
       console.log('🎯 Фокус на главном экране, автообновление:', settings.autoRefresh);
       
       if (settings.autoRefresh) {
         const now = Date.now();
-        // Обновляем только если прошло больше 2 минут с последнего обновления
         if (!lastRefresh || (now - lastRefresh) > 10 * 1000) {
           console.log('🔄 Автообновление запущено');
           refreshAllData();
@@ -58,10 +56,9 @@ const HomeScreen = () => {
         }
       } else {
         console.log('❌ Автообновление отключено в настройках');
-        // Все равно загружаем избранное, но не погоду
         loadFavorites();
       }
-    }, [settings.autoRefresh, lastRefresh]) // Добавляем settings.autoRefresh в зависимости
+    }, [settings.autoRefresh, lastRefresh])
   );
 
   // Функция для полного обновления данных
@@ -79,7 +76,6 @@ const HomeScreen = () => {
       const favoritesData = await getFavorites();
       setFavorites(favoritesData);
       
-      // Проверяем, добавлен ли текущий город в избранное
       if (weatherData) {
         const favoriteStatus = await isFavorite(weatherData.location.name);
         setCurrentLocationIsFavorite(favoriteStatus);
