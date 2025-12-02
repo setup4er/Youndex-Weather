@@ -14,6 +14,7 @@ import { clearCache } from '../services/weatherAPI';
 import ThemeContext from '../context/ThemeContext';
 import { useSettings } from '../context/ThemeContext';
 import { APP_VERSION } from '../utils/constants';
+import { getTemperatureToggleText, getWindSpeedToggleText } from '../utils/helpers';
 
 const SettingsScreen = () => {
   const { settingsStyles } = useThemeStyles();
@@ -33,6 +34,24 @@ const SettingsScreen = () => {
     const newDarkMode = !settings.darkMode;
     console.log('🎨 Переключение темы на:', newDarkMode);
     updateSettings({ darkMode: newDarkMode });
+  };
+
+  // Получение текста для температуры
+  const getTemperatureTitle = () => {
+    return settings.celsius ? 'Температура в °C' : 'Температура в K';
+  };
+
+  const getTemperatureDescription = () => {
+    return getTemperatureToggleText(settings.celsius);
+  };
+
+  // Получение текста для скорости ветра
+  const getWindSpeedTitle = () => {
+    return settings.kmh ? 'Скорость ветра в км/ч' : 'Скорость ветра в м/с';
+  };
+
+  const getWindSpeedDescription = () => {
+    return getWindSpeedToggleText(settings.kmh);
   };
 
   const handleClearCache = async () => {
@@ -160,15 +179,15 @@ const SettingsScreen = () => {
         <Text style={settingsStyles.sectionTitle}>Единицы измерения</Text>
         <SettingItem
           icon="thermometer"
-          title="Температура в °C"
-          description="Отображать температуру в Цельсиях"
+          title={getTemperatureTitle()}
+          description={getTemperatureDescription()}
           value={settings.celsius}
           onToggle={() => handleToggleSetting('celsius')}
         />
         <SettingItem
           icon="speedometer"
-          title="Скорость ветра в км/ч"
-          description="Отображать скорость ветра в километрах в час"
+          title={getWindSpeedTitle()}
+          description={getWindSpeedDescription()}
           value={settings.kmh}
           onToggle={() => handleToggleSetting('kmh')}
         />

@@ -90,6 +90,58 @@ export const getWeatherIcon = (condition) => {
   return icons[conditionLower] || '🌤️';
 };
 
+// Преобразование направления ветра из сокращений в русские названия
+export const formatWindDirection = (direction) => {
+  if (!direction) return '';
+  
+  const directions = {
+    'N': 'северный',
+    'NNE': 'северо-северо-восточный',
+    'NE': 'северо-восточный',
+    'ENE': 'восточно-северо-восточный',
+    'E': 'восточный',
+    'ESE': 'восточно-юго-восточный',
+    'SE': 'юго-восточный',
+    'SSE': 'юго-юго-восточный',
+    'S': 'южный',
+    'SSW': 'юго-юго-западный',
+    'SW': 'юго-западный',
+    'WSW': 'западно-юго-западный',
+    'W': 'западный',
+    'WNW': 'западно-северо-западный',
+    'NW': 'северо-западный',
+    'NNW': 'северо-северо-западный',
+  };
+  
+  return directions[direction] || direction;
+};
+
+// Получение символа направления ветра
+export const getWindDirectionSymbol = (direction) => {
+  if (!direction) return '↓';
+  
+  const symbols = {
+    'N': '↓',    // север
+    'NNE': '↙',  // северо-северо-восток
+    'NE': '↙',   // северо-восток
+    'ENE': '↙',  // восточно-северо-восток
+    'E': '←',    // восток
+    'ESE': '↖',  // восточно-юго-восток
+    'SE': '↖',   // юго-восток
+    'SSE': '↖',  // юго-юго-восток
+    'S': '↑',    // юг
+    'SSW': '↗',  // юго-юго-запад
+    'SW': '↗',   // юго-запад
+    'WSW': '↗',  // западно-юго-запад
+    'W': '→',    // запад
+    'WNW': '↘',  // западно-северо-запад
+    'NW': '↘',   // северо-запад
+    'NNW': '↘',  // северо-северо-запад
+  };
+  
+  return symbols[direction] || '↓';
+};
+
 // Добавление в историю поиска
 export const addToSearchHistory = (history, weatherData) => {
   const newSearch = {
@@ -150,4 +202,14 @@ export const formatTemperatureForDisplay = (tempC, settings) => {
     const tempK = tempC + 273.15;
     return `${Math.round(tempK)}K`;
   }
+};
+
+// Получение текста для кнопки переключения температуры
+export const getTemperatureToggleText = (isCelsius) => {
+  return isCelsius ? 'Переключить на Кельвины' : 'Переключить на Цельсии';
+};
+
+// Получение текста для кнопки переключения скорости ветра
+export const getWindSpeedToggleText = (isKmh) => {
+  return isKmh ? 'Переключить на м/с' : 'Переключить на км/ч';
 };

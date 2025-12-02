@@ -23,6 +23,14 @@ const lightColors = {
   grayLight: '#ecf0f1',
   white: '#ffffff',
   black: '#000000',
+  // Новые цвета для давления
+  pressureHigh: '#4CAF50',    // Зеленый для высокого давления
+  pressureNormal: '#2196F3',  // Синий для нормального
+  pressureLow: '#FF5722',     // Красный для низкого
+  // Новые цвета для осадков
+  precipitationHigh: '#2196F3',   // Синий для высокой вероятности осадков
+  precipitationMedium: '#673AB7', // Фиолетовый для средней
+  precipitationLow: '#4CAF50',    // Зеленый для низкой
 };
 
 const darkColors = {
@@ -45,6 +53,14 @@ const darkColors = {
   grayLight: '#2a2a2a',
   white: '#ffffff',
   black: '#000000',
+  // Новые цвета для давления (более темные оттенки)
+  pressureHigh: '#2E7D32',    // Темно-зеленый для высокого давления
+  pressureNormal: '#1565C0',  // Темно-синий для нормального
+  pressureLow: '#D32F2F',     // Темно-красный для низкого
+  // Новые цвета для осадков
+  precipitationHigh: '#1565C0',   // Темно-синий для высокой вероятности осадков
+  precipitationMedium: '#512DA8', // Темно-фиолетовый для средней
+  precipitationLow: '#2E7D32',    // Темно-зеленый для низкой
 };
 
 // Создаем контекст темы по умолчанию для случаев, когда ThemeContext не доступен
@@ -712,6 +728,7 @@ export const createStyles = (isDarkTheme = false) => {
         borderRadius: 8,
         marginBottom: 10,
         alignItems: 'center',
+        minHeight: 85, // Минимальная высота для одинаковых блоков
       },
       detailIcon: {
         fontSize: 20,
@@ -726,6 +743,39 @@ export const createStyles = (isDarkTheme = false) => {
         fontSize: 14,
         fontWeight: 'bold',
         color: colors.text,
+        textAlign: 'center',
+      },
+      // Новые стили для дополнительной информации
+      detailAdditional: {
+        fontSize: 12,
+        color: colors.textSecondary,
+        marginTop: 2,
+        textAlign: 'center',
+        fontWeight: '500',
+      },
+      detailChance: {
+        fontSize: 11,
+        color: colors.textSecondary,
+        marginTop: 1,
+        fontStyle: 'italic',
+        textAlign: 'center',
+      },
+      // Новые стили для визуальных индикаторов
+      pressureIndicator: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 2,
+      },
+      precipitationIndicator: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 2,
+      },
+      indicatorText: {
+        fontSize: 10,
+        marginLeft: 2,
       },
       additionalInfo: {
         flexDirection: 'row',
