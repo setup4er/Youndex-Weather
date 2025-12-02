@@ -142,6 +142,83 @@ export const getWindDirectionSymbol = (direction) => {
   return symbols[direction] || '↓';
 };
 
+// Получение иконки фазы луны
+export const getMoonPhaseIcon = (moonPhase) => {
+  if (!moonPhase) return '🌑';
+  
+  const phase = moonPhase.toLowerCase();
+  
+  const icons = {
+    'new moon': '🌑',
+    'waxing crescent': '🌒',
+    'first quarter': '🌓',
+    'waxing gibbous': '🌔',
+    'full moon': '🌕',
+    'waning gibbous': '🌖',
+    'last quarter': '🌗',
+    'waning crescent': '🌘',
+  };
+
+  return icons[phase] || '🌑';
+};
+
+// Получение русского названия фазы луны
+export const getMoonPhaseName = (moonPhase) => {
+  if (!moonPhase) return 'Новолуние';
+  
+  const phase = moonPhase.toLowerCase();
+  
+  const names = {
+    'new moon': 'Новолуние',
+    'waxing crescent': 'Растущий серп',
+    'first quarter': 'Первая четверть',
+    'waxing gibbous': 'Растущая луна',
+    'full moon': 'Полнолуние',
+    'waning gibbous': 'Убывающая луна',
+    'last quarter': 'Последняя четверть',
+    'waning crescent': 'Старый серп',
+  };
+
+  return names[phase] || moonPhase;
+};
+
+// Расчет статуса влажности
+export const getHumidityStatus = (humidity) => {
+  if (humidity === undefined || humidity === null) return { status: 'Норма', color: '#2196F3', icon: '➡️' };
+  
+  if (humidity < 30) {
+    return { status: 'Очень низкая', color: '#FF5722', icon: '⬇️' };
+  } else if (humidity < 40) {
+    return { status: 'Низкая', color: '#FF9800', icon: '⬇️' };
+  } else if (humidity <= 60) {
+    return { status: 'Норма', color: '#4CAF50', icon: '➡️' };
+  } else if (humidity <= 70) {
+    return { status: 'Повышенная', color: '#FF9800', icon: '⬆️' };
+  } else {
+    return { status: 'Высокая', color: '#FF5722', icon: '⬆️' };
+  }
+};
+
+// Расчет статуса давления
+export const getPressureStatus = (pressureMb) => {
+  if (pressureMb === undefined || pressureMb === null) return { status: 'Норма', color: '#2196F3', icon: '➡️' };
+  
+  const NORMAL_PRESSURE = 1013.25;
+  const diff = pressureMb - NORMAL_PRESSURE;
+  
+  if (diff < -15) {
+    return { status: 'Очень низкое', color: '#FF5722', icon: '⬇️', diff };
+  } else if (diff < -5) {
+    return { status: 'Низкое', color: '#FF9800', icon: '⬇️', diff };
+  } else if (diff <= 5) {
+    return { status: 'Норма', color: '#4CAF50', icon: '➡️', diff };
+  } else if (diff <= 15) {
+    return { status: 'Повышенное', color: '#FF9800', icon: '⬆️', diff };
+  } else {
+    return { status: 'Высокое', color: '#FF5722', icon: '⬆️', diff };
+  }
+};
+
 // Добавление в историю поиска
 export const addToSearchHistory = (history, weatherData) => {
   const newSearch = {

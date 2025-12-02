@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeStyles } from '../styles/commonStyles';
 import ThemeContext from '../context/ThemeContext';
@@ -9,7 +9,11 @@ import {
   formatTemperature, 
   formatWindSpeed,
   formatWindDirection,
-  getWindDirectionSymbol
+  getWindDirectionSymbol,
+  getMoonPhaseIcon,
+  getMoonPhaseName,
+  getHumidityStatus,
+  getPressureStatus
 } from '../utils/helpers';
 import { useSettings } from '../context/ThemeContext';
 
@@ -25,18 +29,14 @@ const WeatherCard = ({ weatherData, isFavorite = false, onFavoritePress, showFav
   // Получаем данные о восходе и закате из forecast
   const sunrise = forecast?.forecastday?.[0]?.astro?.sunrise;
   const sunset = forecast?.forecastday?.[0]?.astro?.sunset;
+  const moonPhase = forecast?.forecastday?.[0]?.astro?.moon_phase;
+  const moonIllumination = forecast?.forecastday?.[0]?.astro?.moon_illumination;
 
-  // Нормальное давление на уровне моря (гПа)
-  const NORMAL_PRESSURE = 1013.25;
+  // Рассчитываем статус влажности
+  const humidityStatus = getHumidityStatus(current?.humidity);
   
-  // Рассчитываем отклонение давления от нормы
-  const pressureDiff = current?.pressure_mb ? current.pressure_mb - NORMAL_PRESSURE : 0;
-  const pressureIcon = pressureDiff >= 0 ? '⬆️' : '⬇️';
-  const pressureStatus = pressureDiff > 10 ? 'Высокое' : 
-                        pressureDiff < -10 ? 'Низкое' : 'Нормальное';
-  const pressureColor = pressureDiff > 10 ? '#4CAF50' : // Зеленый для высокого
-                       pressureDiff < -10 ? '#FF5722' : // Красный для низкого
-                       '#2196F3'; // Синий для нормального
+  // Рассчитываем статус давления
+  const pressureStatus = getPressureStatus(current?.pressure_mb);
 
   // Получаем вероятность осадков из прогноза
   const precipitationChance = Math.max(
@@ -75,7 +75,9 @@ const WeatherCard = ({ weatherData, isFavorite = false, onFavoritePress, showFav
     { 
       icon: '💨', 
       label: 'Влажность', 
-      value: `${current.humidity}%` 
+      value: `${current.humidity}%`,
+      additional: `${humidityStatus.icon} ${humidityStatus.status}`,
+      additionalColor: humidityStatus.color
     },
     { 
       icon: '🌬️', 
@@ -98,8 +100,8 @@ const WeatherCard = ({ weatherData, isFavorite = false, onFavoritePress, showFav
       icon: '📊', 
       label: 'Давление', 
       value: `${current.pressure_mb} hPa`,
-      additional: `${pressureIcon} ${Math.abs(pressureDiff).toFixed(1)} hPa (${pressureStatus})`,
-      color: pressureColor
+      additional: `${pressureStatus.icon} ${Math.abs(pressureStatus.diff || 0).toFixed(1)} hPa (${pressureStatus.status})`,
+      additionalColor: pressureStatus.color
     },
     { 
       icon: getPrecipitationIcon(), 
@@ -156,16 +158,13 @@ const WeatherCard = ({ weatherData, isFavorite = false, onFavoritePress, showFav
           <View key={index} style={weatherStyles.detailItem}>
             <Text style={weatherStyles.detailIcon}>{detail.icon}</Text>
             <Text style={weatherStyles.detailLabel}>{detail.label}</Text>
-            <Text style={[
-              weatherStyles.detailValue,
-              detail.color ? { color: detail.color } : {}
-            ]}>
+            <Text style={weatherStyles.detailValue}>
               {detail.value}
             </Text>
             {detail.additional && (
               <Text style={[
                 weatherStyles.detailAdditional,
-                detail.color ? { color: detail.color } : {}
+                detail.additionalColor ? { color: detail.additionalColor } : {}
               ]}>
                 {detail.additional}
               </Text>
@@ -184,21 +183,34 @@ const WeatherCard = ({ weatherData, isFavorite = false, onFavoritePress, showFav
         ))}
       </View>
 
-      {/* Блок с восходом и закатом - показываем только если данные доступны */}
-      {(sunrise || sunset) && (
-        <View style={weatherStyles.additionalInfo}>
-          {sunrise && (
-            <Text style={weatherStyles.additionalText}>
-              Восход: {formatTime(sunrise)}
-            </Text>
-          )}
-          {sunset && (
-            <Text style={weatherStyles.additionalText}>
-              Закат: {formatTime(sunset)}
-            </Text>
-          )}
-        </View>
-      )}
+      {/* Блок с дополнительной информацией */}
+      <View style={weatherStyles.additionalInfo}>
+
+        {sunrise && (
+          <Text style={weatherStyles.additionalText}>
+              <Image
+              source={require('../../assets/icon-sunrise.png')}
+              style={{ width: 20, height: 20}}
+           />
+            Восход: {formatTime(sunrise)}
+          </Text>
+        )}
+        {sunset && (
+          <Text style={weatherStyles.additionalText}>
+              <Image
+              source={require('../../assets/icon-sunset.png')}
+              style={{ width: 20, height: 20}}
+           />
+            Закат: {formatTime(sunset)}
+          </Text>
+        )}
+        {moonPhase && (
+          <Text style={weatherStyles.moonPhaseText}>
+            {getMoonPhaseIcon(moonPhase)} Фаза луны: {getMoonPhaseName(moonPhase)}
+            {moonIllumination ? ` (${moonIllumination}%)` : ''}
+          </Text>
+        )}
+      </View>
     </View>
   );
 };

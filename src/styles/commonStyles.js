@@ -23,14 +23,22 @@ const lightColors = {
   grayLight: '#ecf0f1',
   white: '#ffffff',
   black: '#000000',
-  // Новые цвета для давления
+  // Цвета для давления
   pressureHigh: '#4CAF50',    // Зеленый для высокого давления
   pressureNormal: '#2196F3',  // Синий для нормального
   pressureLow: '#FF5722',     // Красный для низкого
-  // Новые цвета для осадков
+  // Цвета для влажности
+  humidityVeryLow: '#FF5722',    // Красный для очень низкой влажности
+  humidityLow: '#FF9800',        // Оранжевый для низкой влажности
+  humidityNormal: '#4CAF50',     // Зеленый для нормальной влажности
+  humidityHigh: '#FF9800',       // Оранжевый для повышенной влажности
+  humidityVeryHigh: '#FF5722',   // Красный для высокой влажности
+  // Цвета для осадков
   precipitationHigh: '#2196F3',   // Синий для высокой вероятности осадков
   precipitationMedium: '#673AB7', // Фиолетовый для средней
   precipitationLow: '#4CAF50',    // Зеленый для низкой
+  // Цвета для фазы луны
+  moonPhase: '#9C27B0',          // Фиолетовый для фазы луны
 };
 
 const darkColors = {
@@ -53,14 +61,22 @@ const darkColors = {
   grayLight: '#2a2a2a',
   white: '#ffffff',
   black: '#000000',
-  // Новые цвета для давления (более темные оттенки)
+  // Цвета для давления (более темные оттенки)
   pressureHigh: '#2E7D32',    // Темно-зеленый для высокого давления
   pressureNormal: '#1565C0',  // Темно-синий для нормального
   pressureLow: '#D32F2F',     // Темно-красный для низкого
-  // Новые цвета для осадков
+  // Цвета для влажности (более темные оттенки)
+  humidityVeryLow: '#D32F2F',    // Темно-красный для очень низкой влажности
+  humidityLow: '#EF6C00',        // Темно-оранжевый для низкой влажности
+  humidityNormal: '#2E7D32',     // Темно-зеленый для нормальной влажности
+  humidityHigh: '#EF6C00',       // Темно-оранжевый для повышенной влажности
+  humidityVeryHigh: '#D32F2F',   // Темно-красный для высокой влажности
+  // Цвета для осадков
   precipitationHigh: '#1565C0',   // Темно-синий для высокой вероятности осадков
   precipitationMedium: '#512DA8', // Темно-фиолетовый для средней
   precipitationLow: '#2E7D32',    // Темно-зеленый для низкой
+  // Цвета для фазы луны
+  moonPhase: '#7B1FA2',          // Темно-фиолетовый для фазы луны
 };
 
 // Создаем контекст темы по умолчанию для случаев, когда ThemeContext не доступен
@@ -738,11 +754,12 @@ export const createStyles = (isDarkTheme = false) => {
         fontSize: 12,
         color: colors.textSecondary,
         marginBottom: 2,
+        textAlign: 'center',
       },
       detailValue: {
         fontSize: 14,
         fontWeight: 'bold',
-        color: colors.text,
+        color: colors.text, // Основное значение белым цветом
         textAlign: 'center',
       },
       // Новые стили для дополнительной информации
@@ -760,33 +777,23 @@ export const createStyles = (isDarkTheme = false) => {
         fontStyle: 'italic',
         textAlign: 'center',
       },
-      // Новые стили для визуальных индикаторов
-      pressureIndicator: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: 2,
-      },
-      precipitationIndicator: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: 2,
-      },
-      indicatorText: {
-        fontSize: 10,
-        marginLeft: 2,
-      },
       additionalInfo: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
+        flexDirection: 'column',
         borderTopWidth: 1,
         borderTopColor: colors.border,
         paddingTop: 16,
+        gap: 8,
       },
       additionalText: {
         fontSize: 14,
         color: colors.textSecondary,
+        textAlign: 'center',
+      },
+      moonPhaseText: {
+        fontSize: 14,
+        color: colors.moonPhase,
+        textAlign: 'center',
+        fontWeight: '500',
       },
     }),
 
