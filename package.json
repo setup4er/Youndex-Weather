@@ -6,13 +6,17 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "clear": "expo start --clear"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-navigation/bottom-tabs": "^6.5.11",
     "@react-navigation/native": "^6.1.9",
     "@react-navigation/stack": "^6.3.17",
+    "@react-native-community/cli-platform-android": "^11.3.6",
+    "@react-native-community/cli-platform-ios": "^11.3.6",
+    "@react-native-community/cli-server-api": "^11.3.6",
     "axios": "^1.6.2",
     "expo": "~54.0.0",
     "expo-location": "~19.0.7",
@@ -25,6 +29,7 @@
     "react-native-screens": "~4.16.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "react-native-cli": "^2.0.1"
   }
 }
